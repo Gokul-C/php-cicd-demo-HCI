@@ -63,7 +63,17 @@ stages:
           - script: |
               trivy image -s "HIGH,CRITICAL" docker.io/gokulc780/webapp:$(Build.BuildId)
 
-  
-              
-
-
+  - stage: Deploy
+    displayName: 'Deploy to AKS'
+    jobs:
+      - job: Deploy
+        timeoutInMinutes: 15
+        displayName: 'Deploy to AKS'
+        pool:
+          name: Self-hosted
+          demands:
+            - agent.name -equals hci-vm
+        steps:
+          - script: |
+              kubectl set image deployment/my-app webapp=webapp:$(Build.BuildId) -n dev-ci
+              kubectl set image deployment/my-app webapp=webapp:$(Build.BuildId) -n prod-ci
