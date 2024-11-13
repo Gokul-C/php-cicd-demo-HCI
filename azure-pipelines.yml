@@ -31,7 +31,7 @@ stages:
             - agent.name -equals hci-vm
         steps:
           - script: |
-              sonar-scanner -Dsonar.projectKey=cicddemo -Dsonar.sources=/home/gokul-admin/_work/1/s/webapp -Dsonar.host.url=http://10.21.10.6:9000 -Dsonar.login=sqp_4639108d205e4aabacbafc97fc10aa457323f16f
+              sonar-scanner -Dsonar.projectKey=cicddemo -Dsonar.sources=/home/gokul-admin/runner/_work/3/s/webapp -Dsonar.host.url=http://10.21.10.6:9000 -Dsonar.login=sqp_4639108d205e4aabacbafc97fc10aa457323f16f -Dsonar.projectBaseDir=/home/gokul-admin/runner/_work/3/s/webapp
 
   - stage: Build
     displayName: Build
