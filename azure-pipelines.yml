@@ -46,8 +46,8 @@ stages:
         steps:
           - script: |
               docker build -t webapp:$(Build.BuildId) .
-              docker tag webapp:$(Build.BuildId) gokulc780/webapp:$(Build.BuildId)
-              docker push gokulc780/webapp:$(Build.BuildId)
+              docker tag webapp:$(Build.BuildId) cicdhcidemo.azurecr.io/webapp:$(Build.BuildId)
+              docker push cicdhcidemo.azurecr.io/webapp:$(Build.BuildId)
 
   - stage: Trivy
     displayName: 'Trivy Conatiner Scan'
