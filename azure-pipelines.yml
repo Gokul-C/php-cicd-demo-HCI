@@ -19,10 +19,10 @@ stages:
           - script: |
               git clone https://github.com/Gokul-C/php-cicd-demo-HCI.git
 
-  - stage: Sonarqube-Scan
+  - stage: Sonarqube
     displayName: Sonarqube-Scan
     jobs:
-      - job: Sonarqube-Scan
+      - job: Sonarqube
         timeoutInMinutes: 15
         displayName: 'Sonar Code Scan'
         pool:
@@ -49,10 +49,10 @@ stages:
               docker tag webapp:$(Build.BuildId) gokulc780/webapp:$(Build.BuildId)
               docker push gokulc780/webapp:$(Build.BuildId)
 
-  - stage: Trivy-Scan
+  - stage: Trivy
     displayName: 'Trivy Conatiner Scan'
     jobs:
-      - job: Trivy-Scan
+      - job: Trivy
         timeoutInMinutes: 15
         displayName: 'Trivy Conatiner Scan'
         pool:
