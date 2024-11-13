@@ -1,0 +1,65 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- master
+- dev
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '59b31655-006c-47a4-a9ae-6145e5592d90'
+  imageRepository: 'cicddemo'
+  containerRegistry: 'rccregistry.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+  # Agent VM image name.
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      name: Default
+      demands:
+      - agent.name -equals cicd2
+    steps:
+    - script: |
+        export SONAR_TOKEN=3b968249fff45a9f40ad0a10ba3d70500ed4a120
+        /home/user/sonar-scanner-4.7.0.2747-linux/bin/sonar-scanner   -Dsonar.organization=cicddemo   -Dsonar.projectKey=nkumar0175_cicd_demo   -Dsonar.sources=.   -Dsonar.host.url=https://sonarcloud.io -Dsonar.sources=/home/user/_work/1/s/webapp
+      displayName: 'Sonar Code Scan'
+    - task: Docker@2
+      displayName: Build Docker Image
+      inputs:
+        command: build
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+    - script: |
+        trivy image -s "HIGH,CRITICAL" rccregistry.azurecr.io/cicddemo:$(Build.BuildId)
+        sleep 30s
+      displayName: 'Docker Container Scan'
+    - task: Docker@2
+      displayName: Push Docker Image to ACR
+      inputs:
+        command: push
+        repository: $(imageRepository)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+    - script: |
+        export KUBECONFIG=/home/user/hkshci.yaml
+        export var="kubectl set image deploy/my-app my-app=rccregistry.azurecr.io/cicddemo"
+        $var:$(Build.BuildId) -n dev-ci
+        $var:$(Build.BuildId) -n prod-ci
+      displayName: 'Deploy to AKS'
